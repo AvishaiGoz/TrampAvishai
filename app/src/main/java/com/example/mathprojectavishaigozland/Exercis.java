@@ -9,6 +9,7 @@ public class Exercis {
     int mana1;
     int mana2;
     int result;
+    int point;
     private ExercisCallbackInterface exercisCallbackInterface;
 
     public Exercis(ExercisCallbackInterface exercisCallbackInterface){
@@ -21,6 +22,7 @@ public class Exercis {
         mana1 = random.nextInt(10);
         mana2 = random.nextInt(10);
         result = mana1 * mana2;
+        point = 5;
 
         exercisCallbackInterface.showNumber(mana1, mana2);
     }
@@ -31,6 +33,7 @@ public class Exercis {
         mana1 = random.nextInt(10);
         mana2 = random.nextInt(10)+10;
         result = mana1 * mana2;
+        point = 10;
 
         exercisCallbackInterface.showNumber(mana1, mana2);
 
@@ -42,6 +45,7 @@ public class Exercis {
         mana1 = random.nextInt(10);
         mana2 = random.nextInt(90)+10;
         result = mana1 * mana2;
+        point = 20;
 
         exercisCallbackInterface.showNumber(mana1, mana2);
 

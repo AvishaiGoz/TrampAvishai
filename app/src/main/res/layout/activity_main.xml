@@ -9,6 +9,13 @@
     tools:context=".MainActivity"
     android:orientation="vertical">
 
+    <Button
+        android:layout_width="150dp"
+        android:layout_height="wrap_content"
+        android:text="Rate"
+        android:id="@+id/BT_Rate"
+        />
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -45,6 +52,7 @@
             android:text="לוח הכפל"
             android:layout_gravity="center_horizontal"
             />
+
 
     </LinearLayout>
 
