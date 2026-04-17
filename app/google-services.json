@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "743983180230",
+    "project_id": "trempapp-31573",
+    "storage_bucket": "trempapp-31573.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:743983180230:android:13408e50b210d4a454aac7",
+        "android_client_info": {
+          "package_name": "com.example.mathprojectavishaigozland"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDnYeVHJuowVanVmVXdjRTPV7EkBjKaVjU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,17 +1,21 @@
-package com.example.mathprojectavishaigozland;
+package com.example.mathprojectavishaigozland.mathproject;
 
 import android.widget.EditText;
-import android.widget.Toast;
 
 import java.util.Random;
 
 public class Exercis {
-    int mana1;
-    int mana2;
-    int result;
-    int point;
-    private ExercisCallbackInterface exercisCallbackInterface;
+    int mana1;    // המספר הראשון בתרגיל
+    int mana2;   // המספר השני בתרגיל
+    int result;  // תוצאת המכפלה הנכונה
+    int point;   // כמות הנקודות שהמשתמש יקבל על פתרון תרגיל זה (משתנה לפי רמת הקושי)
 
+    /**
+     * מחזיק את הכתובת של הפעולה שהוגדרה ב-Activity
+     */
+    private final ExercisCallbackInterface exercisCallbackInterface;
+
+    //פעולה בונה למחלקת Exercis
     public Exercis(ExercisCallbackInterface exercisCallbackInterface){
         this.exercisCallbackInterface = exercisCallbackInterface;
     }
@@ -24,6 +28,7 @@ public class Exercis {
         result = mana1 * mana2;
         point = 5;
 
+        //הפעלת הפעולה המוגדרת ב-Activity
         exercisCallbackInterface.showNumber(mana1, mana2);
     }
 
@@ -54,11 +59,6 @@ public class Exercis {
     //פעולת תשובה
     public boolean answearAfirst(EditText userAns){
         String answer = userAns.getText().toString();
-        if(answer.equals(result+"")){
-            return true;
-        }
-        else{
-            return false;
-        }
+        return answer.equals(result + "");
     }
 }

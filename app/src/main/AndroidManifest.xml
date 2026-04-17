@@ -13,13 +13,49 @@
         android:theme="@style/Theme.MathProjectAvishaiGozland"
         tools:targetApi="31">
         <activity
-            android:name=".RateActivity"
+            android:name=".tramp.RideAdapter"
             android:exported="false" />
         <activity
-            android:name=".MainActivity"
+            android:name=".tramp.Ride"
             android:exported="false" />
         <activity
-            android:name=".LogInActivity"
+            android:name=".MyRides"
+            android:exported="false" />
+        <activity
+            android:name=".tramp.UserProfile"
+            android:exported="false" />
+        <activity
+            android:name=".tramp.HomeTravelShow"
+            android:exported="false" />
+        <activity
+            android:name=".tramp.request"
+            android:exported="false" />
+        <activity
+            android:name=".tramp.offer"
+            android:exported="false" />
+        <activity
+            android:name=".tramp.entery_feed"
+            android:exported="false" />
+        <activity
+            android:name=".tramp.MainActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".tramp.Feed_Activity"
+            android:exported="false" />
+        <activity
+            android:name=".mathproject.RateActivity"
+            android:exported="false" />
+        <activity
+            android:name=".mathproject.MainActivity"
+            android:exported="false" />
+        <activity
+            android:name=".mathproject.LogInActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
