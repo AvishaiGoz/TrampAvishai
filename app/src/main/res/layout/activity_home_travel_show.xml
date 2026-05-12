@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
@@ -22,29 +21,30 @@
                 android:id="@+id/tvAppTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_alignParentStart="true"
-                android:layout_gravity="center"
-                android:layout_marginStart="124dp"
+                android:layout_centerHorizontal="true"
                 android:text="נסיעות זמינות"
                 android:textColor="@android:color/black"
                 android:textSize="22sp"
                 android:textStyle="bold" />
 
-            <ImageButton
-                android:id="@+id/btnSettings"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
+            <TextView
+                android:id="@+id/btnMyRides"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:layout_alignParentEnd="true"
                 android:layout_centerVertical="true"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:contentDescription="הגדרות"
-                android:padding="10dp"
-                android:scaleType="fitCenter"
-                android:src="@drawable/ic_settings"
-                app:tint="#616161" />
+                android:background="?attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true"
+                android:padding="8dp"
+                android:text="הנסיעות שלי"
+                android:textColor="#2196F3"
+                android:textSize="16sp"
+                android:textStyle="bold" />
         </RelativeLayout>
 
         <LinearLayout
+            android:id="@+id/llFilterButtons"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
@@ -88,9 +88,8 @@
             android:layout_marginEnd="6dp"
             android:layout_weight="1"
             android:backgroundTint="#FF9800"
-            android:text="פרסם בקשת נסיעה"
-            app:cornerRadius="8dp"
-            app:icon="@null" />/>
+            android:text="פרסם בקשה"
+            app:cornerRadius="8dp" />
 
         <Button
             android:id="@+id/btnNewOffer"
@@ -100,19 +99,23 @@
             android:layout_marginStart="6dp"
             android:layout_weight="1"
             android:backgroundTint="#4CAF50"
-            android:text="פרסם הצעת נסיעה"
-            app:cornerRadius="8dp"
-            app:icon="@null" />
-        />
+            android:text="פרסם הצעה"
+            app:cornerRadius="8dp" />
     </LinearLayout>
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rvRidesFeed"
+    <FrameLayout
+        android:id="@+id/fragment_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_above="@id/llBottomButtons"
-        android:layout_below="@id/llHeader"
-        android:clipToPadding="false"
-        android:padding="8dp" />
+        android:layout_below="@id/llHeader">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvRidesFeed"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:padding="8dp" />
+    </FrameLayout>
 
 </RelativeLayout>

@@ -1,5 +1,7 @@
 package com.example.mathprojectavishaigozland.tramp;
 
+import android.app.DatePickerDialog;
+import android.app.TimePickerDialog;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.Toast;
@@ -8,102 +10,98 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.mathprojectavishaigozland.R;
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.util.Calendar;
 import java.util.HashMap;
-import java.util.Map;
 
 public class request extends AppCompatActivity {
 
-    private TextInputEditText etOrigin, etDestination, etDate, etRequestTime, etNotes;
+    private TextInputEditText etOrigin, etDestination, etDate, etTime;
     private Button btnSubmitRequest;
-    private FirebaseFirestore db;
-    private FirebaseAuth mAuth;
+    private final FirebaseFirestore db = FirebaseFirestore.getInstance();
+    private final Calendar calendar = Calendar.getInstance();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_request);
 
-        db = FirebaseFirestore.getInstance();
-        mAuth = FirebaseAuth.getInstance();
-
+        // אתחול רכיבים - ודא שה-IDs תואמים בדיוק ל-XML שלך!
         etOrigin = findViewById(R.id.etPickupLocation);
         etDestination = findViewById(R.id.etDropOffLocation);
         etDate = findViewById(R.id.etRequestDate);
-        etRequestTime = findViewById(R.id.etRequestTime);
-        etNotes = findViewById(R.id.etNotes);
+        etTime = findViewById(R.id.etRequestTime);
         btnSubmitRequest = findViewById(R.id.btnSubmitRequest);
 
-        btnSubmitRequest.setOnClickListener(v -> publishRequest());
-
+        // פתיחת בחירת תאריך
         etDate.setOnClickListener(v -> {
-            // השגת התאריך של היום כדי שהיומן יפתח על התאריך הנוכחי
-            final java.util.Calendar c = java.util.Calendar.getInstance();
-            int year = c.get(java.util.Calendar.YEAR);
-            int month = c.get(java.util.Calendar.MONTH);
-            int day = c.get(java.util.Calendar.DAY_OF_MONTH);
-
-            // יצירת הדיאלוג של היומן
-            android.app.DatePickerDialog datePickerDialog = new android.app.DatePickerDialog(this,
-                    (view, year1, monthOfYear, dayOfMonth) -> {
-                        // מה קורה אחרי שהמשתמש בחר תאריך? כותבים אותו לשדה
-                        etDate.setText(dayOfMonth + "/" + (monthOfYear + 1) + "/" + year1);
-                    }, year, month, day);
-            datePickerDialog.show();
+            new DatePickerDialog(this, (view, year, month, day) -> {
+                calendar.set(Calendar.YEAR, year);
+                calendar.set(Calendar.MONTH, month);
+                calendar.set(Calendar.DAY_OF_MONTH, day);
+                etDate.setText(day + "/" + (month + 1) + "/" + year);
+            }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH)).show();
         });
 
-        etRequestTime.setOnClickListener(v -> {
-            final java.util.Calendar c = java.util.Calendar.getInstance();
-            int hour = c.get(java.util.Calendar.HOUR_OF_DAY);
-            int minute = c.get(java.util.Calendar.MINUTE);
-
-            // יצירת הדיאלוג של השעון
-            android.app.TimePickerDialog timePickerDialog = new android.app.TimePickerDialog(this,
-                    (view, hourOfDay, minuteOfHour) -> {
-                        // עיצוב השעה שתוצג (למשל 08:05 במקום 8:5)
-                        String formattedTime = String.format("%02d:%02d", hourOfDay, minuteOfHour);
-                        etRequestTime.setText(formattedTime);
-                    }, hour, minute, true); // true אומר פורמט של 24 שעות
-            timePickerDialog.show();
+        // פתיחת בחירת שעה
+        etTime.setOnClickListener(v -> {
+            new TimePickerDialog(this, (view, hour, minute) -> {
+                calendar.set(Calendar.HOUR_OF_DAY, hour);
+                calendar.set(Calendar.MINUTE, minute);
+                etTime.setText(String.format("%02d:%02d", hour, minute));
+            }, calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE), true).show();
         });
+
+        btnSubmitRequest.setOnClickListener(v -> publishRideRequest());
     }
 
-    private void publishRequest() {
+    private void publishRideRequest() {
         String origin = etOrigin.getText().toString().trim();
         String destination = etDestination.getText().toString().trim();
-        String date = etDate.getText().toString().trim();
-        String time = etRequestTime.getText().toString().trim();
-        String notes = etNotes.getText().toString().trim();
+        String dateStr = etDate.getText().toString().trim();
 
-        if (origin.isEmpty() || destination.isEmpty() || date.isEmpty() || time.isEmpty() || notes.isEmpty()) {
+        if (origin.isEmpty() || destination.isEmpty() || dateStr.isEmpty()) {
             Toast.makeText(this, "נא למלא את כל השדות", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        String userId = mAuth.getCurrentUser().getUid();
+        String uid = FirebaseAuth.getInstance().getUid();
+        if (uid == null) {
+            Toast.makeText(this, "שגיאת התחברות", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
-        Map<String, Object> rideRequest = new HashMap<>();
-        rideRequest.put("origin", origin);
-        rideRequest.put("destination", destination);
-        rideRequest.put("date", date);
-        rideRequest.put("time", time);
-        rideRequest.put("notes", notes);
-        rideRequest.put("driverId", userId);
-        rideRequest.put("type", "request");
-        rideRequest.put("timestamp", com.google.firebase.firestore.FieldValue.serverTimestamp());
+        DocumentReference ref = db.collection("rides").document();
 
-        db.collection("rides")
-                .add(rideRequest)
-                .addOnSuccessListener(documentReference -> {
-                    Toast.makeText(this, "בקשת הנסיעה פורסמה!", Toast.LENGTH_SHORT).show();
+        // יצירת האובייקט - שים לב ל-type "request"
+        Ride newRequest = new Ride(
+                ref.getId(),
+                uid,
+                origin,
+                destination,
+                "request",
+                new Timestamp(calendar.getTime()),
+                1 // כמות נוסעים בבקשה
+        );
+
+        // חשוב מאוד: אתחול מפות ריקות כדי למנוע קריסות ב-Adapter
+        newRequest.setPendingUsers(new HashMap<>());
+        newRequest.setConfirmedUsers(new HashMap<>());
+
+        btnSubmitRequest.setEnabled(false); // מניעת לחיצות כפולות
+
+        ref.set(newRequest)
+                .addOnSuccessListener(aVoid -> {
+                    Toast.makeText(this, "הבקשה פורסמה בהצלחה!", Toast.LENGTH_SHORT).show();
                     finish();
                 })
                 .addOnFailureListener(e -> {
-                    // זה ידפיס ב-Logcat בדיוק מה הבעיה (למשל: חוסר בהרשאות)
-                    android.util.Log.e("FIRESTORE_ERROR", "Error writing document", e);
-                    Toast.makeText(this, "שגיאה: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                    btnSubmitRequest.setEnabled(true);
+                    Toast.makeText(this, "שגיאה בפרסום: " + e.getMessage(), Toast.LENGTH_LONG).show();
                 });
     }
 }

@@ -2,8 +2,9 @@ package com.example.mathprojectavishaigozland.tramp;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.Button;
-import android.widget.Toast;
+import android.widget.LinearLayout;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -11,123 +12,110 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.mathprojectavishaigozland.R;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class HomeTravelShow extends AppCompatActivity {
 
-    private RecyclerView rvRidesFeed;
+    private RecyclerView rvRides;
     private RideAdapter adapter;
     private List<Ride> rideList;
-    private FirebaseFirestore db;
-    private Button btnNewOffer;
-    private Button btnNewRequest;
-    private Button btnFilterOffers;
-    private Button btnFilterRequests;
+    private List<Ride> filteredList;
+    private final FirebaseFirestore db = FirebaseFirestore.getInstance();
     private String currentFilter = "all";
+    private LinearLayout llFilterButtons; // שורת כפתורי הסינון
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home_travel_show);
 
-        db = FirebaseFirestore.getInstance();
-        rvRidesFeed = findViewById(R.id.rvRidesFeed);
-        btnNewOffer = findViewById(R.id.btnNewOffer);
-        btnNewRequest = findViewById(R.id.btnNewRequest);
-        btnFilterOffers = findViewById(R.id.btnFilterOffers);
-        btnFilterRequests = findViewById(R.id.btnFilterRequests);
-
-        btnFilterOffers.setOnClickListener(v -> {
-            if (currentFilter.equals("offer")) {
-                // אם כבר היה מסונן על הצעות - תחזור להכל
-                currentFilter = "all";
-            } else {
-                // אם לא - תעבור להצעות
-                currentFilter = "offer";
-            }
-            loadRidesFromFirestore(currentFilter);
-        });
-
-        btnFilterRequests.setOnClickListener(v -> {
-            if (currentFilter.equals("request")) {
-                currentFilter = "all";
-            } else {
-                currentFilter = "request";
-            }
-            loadRidesFromFirestore(currentFilter);
-        });
-
-        // הגדרת ה-RecyclerView
+        // אתחול אלמנטים
+        rvRides = findViewById(R.id.rvRidesFeed);
+        llFilterButtons = findViewById(R.id.llFilterButtons);
         rideList = new ArrayList<>();
-        adapter = new RideAdapter(rideList);
-        rvRidesFeed.setLayoutManager(new LinearLayoutManager(this));
-        rvRidesFeed.setAdapter(adapter);
+        filteredList = new ArrayList<>();
 
-        // כפתור מעבר למסך הצעת נסיעה (offer)
-        btnNewOffer.setOnClickListener(v -> {
-            Intent intent = new Intent(this, offer.class);
-            startActivity(intent);
+        adapter = new RideAdapter(this, filteredList);
+        rvRides.setLayoutManager(new LinearLayoutManager(this));
+        rvRides.setAdapter(adapter);
+
+        // --- כפתורי סינון פיד ראשי ---
+        Button btnOffers = findViewById(R.id.btnFilterOffers);
+        Button btnRequests = findViewById(R.id.btnFilterRequests);
+
+        btnOffers.setOnClickListener(v -> toggleFilter("offer", btnOffers, btnRequests));
+        btnRequests.setOnClickListener(v -> toggleFilter("request", btnRequests, btnOffers));
+
+        // --- ניווט לפרגמנט "הנסיעות שלי" ---
+        findViewById(R.id.btnMyRides).setOnClickListener(v -> {
+            // הסתרת אלמנטים של המסך הראשי כדי למנוע כפילויות
+            rvRides.setVisibility(View.GONE);
+            llFilterButtons.setVisibility(View.GONE);
+
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.fragment_container, new MyRidesFragment())
+                    .addToBackStack(null)
+                    .commit();
         });
 
-        // כפתור מעבר לבקשת נסיעה (request)
-        btnNewRequest.setOnClickListener(v -> {
-            Intent intent = new Intent(this, request.class);
-            startActivity(intent);
-        });
+        // כפתורי פרסום
+        findViewById(R.id.btnNewOffer).setOnClickListener(v -> startActivity(new Intent(this, offer.class)));
+        findViewById(R.id.btnNewRequest).setOnClickListener(v -> startActivity(new Intent(this, request.class)));
 
-        loadRidesFromFirestore("all");
+        loadRides();
     }
 
-    private void loadRidesFromFirestore(String filterType) {
-        // הגדרת בסיס השאילתה תמיד למיין לפי זמן
-        com.google.firebase.firestore.Query query = db.collection("rides");
-
-        // סינון לפי סוג רק אם נבחר סוג ספציפי
-        if (filterType.equals("all")) {
-            // במצב "הכל" - רק מיון לפי זמן
-            query = query.orderBy("timestamp", com.google.firebase.firestore.Query.Direction.DESCENDING);
+    private void toggleFilter(String type, Button selectedBtn, Button otherBtn) {
+        if (currentFilter.equals(type)) {
+            currentFilter = "all";
+            selectedBtn.setAlpha(1.0f);
         } else {
-            query = query.whereEqualTo("type", filterType)
-                    .orderBy("timestamp", com.google.firebase.firestore.Query.Direction.DESCENDING);
+            currentFilter = type;
+            selectedBtn.setAlpha(0.5f);
+            otherBtn.setAlpha(1.0f);
         }
-
-        // 3. האזנה לשינויים
-        query.addSnapshotListener((value, error) -> {
-            if (error != null) {
-                android.util.Log.e("FIRESTORE", "Error: " + error.getMessage());
-                return;
-            }
-
-            if (value != null) {
-                rideList.clear();
-                for (com.google.firebase.firestore.QueryDocumentSnapshot doc : value) {
-                    Ride ride = doc.toObject(Ride.class);
-                    rideList.add(ride);
-                }
-                adapter.notifyDataSetChanged();
-
-                // הודעה קטנה למשתמש אם הרשימה ריקה
-                if (rideList.isEmpty()) {
-                    Toast.makeText(this, "אין נסיעות להצגה כרגע", Toast.LENGTH_SHORT).show();
-                }
-            }
-            updateButtonUI(filterType);
-        });
+        refreshDisplay();
     }
 
-    private void updateButtonUI(String selectedType) {
-        if (selectedType.equals("all")) {
-            // במצב "הכל" - כולם מודגשים במידה שווה
-            btnFilterOffers.setAlpha(1.0f);
-            btnFilterRequests.setAlpha(1.0f);
-        } else if (selectedType.equals("offer")) {
-            btnFilterOffers.setAlpha(1.0f);
-            btnFilterRequests.setAlpha(0.3f); // מחשיך את הכפתור השני
-        } else if (selectedType.equals("request")) {
-            btnFilterOffers.setAlpha(0.3f);
-            btnFilterRequests.setAlpha(1.0f);
+    private void refreshDisplay() {
+        filteredList.clear();
+        if (currentFilter.equals("all")) {
+            filteredList.addAll(rideList);
+        } else {
+            for (Ride r : rideList) {
+                if (r.getType() != null && r.getType().equalsIgnoreCase(currentFilter)) {
+                    filteredList.add(r);
+                }
+            }
+        }
+        adapter.notifyDataSetChanged();
+    }
+
+    private void loadRides() {
+        db.collection("rides").orderBy("timestamp", Query.Direction.DESCENDING)
+                .addSnapshotListener((value, error) -> {
+                    if (value != null) {
+                        rideList.clear();
+                        for (QueryDocumentSnapshot doc : value) {
+                            Ride r = doc.toObject(Ride.class);
+                            rideList.add(r);
+                        }
+                        refreshDisplay();
+                    }
+                });
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        // החזרת הפיד הראשי למצב גלוי ביציאה מהפרגמנט
+        if (rvRides.getVisibility() == View.GONE) {
+            rvRides.setVisibility(View.VISIBLE);
+            llFilterButtons.setVisibility(View.VISIBLE);
         }
     }
 }
