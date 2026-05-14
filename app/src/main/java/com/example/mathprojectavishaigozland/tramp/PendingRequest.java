@@ -5,12 +5,14 @@ public class PendingRequest {
     private final String userName;
     private final String status;
     private final int requestedSeats;
+    private final String phoneNumber; // שדה חדש למספר הטלפון
 
-    public PendingRequest(String userId, String userName, int requestedSeats, String status) {
+    public PendingRequest(String userId, String userName, int requestedSeats, String status, String phoneNumber) {
         this.userId = userId;
         this.userName = userName;
         this.requestedSeats = requestedSeats;
         this.status = status;
+        this.phoneNumber = phoneNumber;
     }
 
     public String getUserId() {
@@ -27,5 +29,9 @@ public class PendingRequest {
 
     public int getRequestedSeats() {
         return requestedSeats;
+    }
+
+    public String getPhoneNumber() {
+        return phoneNumber;
     }
 }

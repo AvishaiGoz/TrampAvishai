@@ -6,7 +6,8 @@
     android:layout_height="wrap_content"
     android:layout_margin="8dp"
     app:cardCornerRadius="12dp"
-    app:cardElevation="2dp">
+    app:cardElevation="3dp"
+    app:strokeWidth="1dp">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -27,73 +28,67 @@
             android:id="@+id/itemDriverName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="4dp"
             android:text="טוען שם..."
             android:textColor="#757575"
             android:textSize="14sp" />
 
+        <TextView
+            android:id="@+id/itemDate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="תאריך ושעה"
+            android:textColor="#757575" />
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="4dp"
             android:orientation="horizontal">
 
             <TextView
-                android:id="@+id/itemDate"
+                android:id="@+id/itemSeats"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="16dp"
-                android:text="15/04/2026" />
+                android:text="מקומות פנויים: 0"
+                android:textColor="#4CAF50"
+                android:textStyle="bold" />
 
             <TextView
-                android:id="@+id/itemTime"
+                android:id="@+id/itemFuel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="14:00" />
+                android:layout_marginStart="16dp"
+                android:text="דלק: לא נדרש"
+                android:textColor="#F44336" />
         </LinearLayout>
-
-        <TextView
-            android:id="@+id/itemSeats"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:text="מקומות: 3"
-            android:textColor="#4CAF50" />
 
         <Button
             android:id="@+id/btnAction"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="אני מעוניין" />
+            android:layout_marginTop="12dp"
+            android:text="אני מעוניין"
+            app:cornerRadius="8dp" />
 
-        <LinearLayout
+        <Button
+            android:id="@+id/btnManageRequests"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
-            android:orientation="horizontal"
-            android:weightSum="2">
+            android:backgroundTint="#333333"
+            android:text="נהל בקשות"
+            android:visibility="gone"
+            app:cornerRadius="8dp" />
 
-            <Button
-                android:id="@+id/btnContact"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="4dp"
-                android:layout_weight="1"
-                android:backgroundTint="#2196F3"
-                android:text="צור קשר"
-                android:visibility="gone" />
-
-            <Button
-                android:id="@+id/btnManageRequests"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:backgroundTint="#333333"
-                android:text="נהל בקשות"
-                android:visibility="gone" />
-
-        </LinearLayout>
+        <Button
+            android:id="@+id/btnContact"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:backgroundTint="#2196F3"
+            android:text="צור קשר"
+            android:visibility="gone"
+            app:cornerRadius="8dp" />
 
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

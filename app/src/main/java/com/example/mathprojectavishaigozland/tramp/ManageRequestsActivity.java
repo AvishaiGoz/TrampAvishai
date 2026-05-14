@@ -47,7 +47,7 @@ public class ManageRequestsActivity extends AppCompatActivity {
     }
 
     private void loadData() {
-        db.collection("rides").document(rideId).addSnapshotListener((doc, e) -> {
+        db.collection("rides").document(rideId).addSnapshotListener((doc, error) -> {
             if (doc == null || !doc.exists()) return;
             requestList.clear();
 
@@ -69,8 +69,13 @@ public class ManageRequestsActivity extends AppCompatActivity {
 
     private void fetchUser(String uid, int seats, String status) {
         db.collection("users").document(uid).get().addOnSuccessListener(uDoc -> {
-            requestList.add(new PendingRequest(uid, uDoc.getString("fullName"), seats, status));
-            adapter.notifyDataSetChanged();
+            if (uDoc != null && uDoc.exists()) {
+                String name = uDoc.getString("fullName");
+                String phone = uDoc.getString("phone"); // שליפת מספר הטלפון מה-DB
+
+                requestList.add(new PendingRequest(uid, name, seats, status, phone));
+                adapter.notifyDataSetChanged();
+            }
         });
     }
 
@@ -82,6 +87,8 @@ public class ManageRequestsActivity extends AppCompatActivity {
     }
 
     private void reject(PendingRequest req) {
-        db.collection("rides").document(rideId).update("pendingUsers." + req.getUserId(), FieldValue.delete());
+        db.collection("rides").document(rideId).update(
+                "pendingUsers." + req.getUserId(), FieldValue.delete()
+        );
     }
 }

@@ -4,6 +4,7 @@ import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.os.Bundle;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -19,6 +20,7 @@ import java.util.Calendar;
 
 public class offer extends AppCompatActivity {
     private TextInputEditText etOrigin, etDest, etSeats, etDate, etTime;
+    private CheckBox cbFuel; // הוספת CheckBox
     private Button btnPublish;
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
     private final Calendar calendar = Calendar.getInstance();
@@ -28,15 +30,14 @@ public class offer extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_offer);
 
-        // אתחול רכיבים
         etOrigin = findViewById(R.id.etOrigin);
         etDest = findViewById(R.id.etDestination);
         etSeats = findViewById(R.id.etSeats);
         etDate = findViewById(R.id.etDate);
         etTime = findViewById(R.id.etTime);
+        cbFuel = findViewById(R.id.cbFuelParticipation); // אתחול
         btnPublish = findViewById(R.id.btnPublishRide);
 
-        // בחירת תאריך
         etDate.setOnClickListener(v -> {
             new DatePickerDialog(this, (view, year, month, day) -> {
                 calendar.set(Calendar.YEAR, year);
@@ -46,7 +47,6 @@ public class offer extends AppCompatActivity {
             }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH)).show();
         });
 
-        // בחירת שעה
         etTime.setOnClickListener(v -> {
             new TimePickerDialog(this, (view, hour, minute) -> {
                 calendar.set(Calendar.HOUR_OF_DAY, hour);
@@ -63,7 +63,7 @@ public class offer extends AppCompatActivity {
         String d = etDest.getText().toString().trim();
         String s = etSeats.getText().toString().trim();
 
-        if (o.isEmpty() || d.isEmpty() || s.isEmpty() || etDate.getText().toString().isEmpty()) {
+        if (o.isEmpty() || d.isEmpty() || s.isEmpty()) {
             Toast.makeText(this, "נא למלא את כל השדות", Toast.LENGTH_SHORT).show();
             return;
         }
@@ -71,11 +71,11 @@ public class offer extends AppCompatActivity {
         String uid = FirebaseAuth.getInstance().getUid();
         DocumentReference ref = db.collection("rides").document();
 
-        // יצירת אובייקט נסיעה עם ה-Timestamp מהקלינדר
         Ride ride = new Ride(ref.getId(), uid, o, d, "offer", new Timestamp(calendar.getTime()), Integer.parseInt(s));
+        // כאן ניתן להוסיף את המשתנה cbFuel.isChecked() לתוך ה-ride אם השדה קיים במודל
 
         ref.set(ride).addOnSuccessListener(aVoid -> {
-            Toast.makeText(this, "נסיעה פורסמה בהצלחה!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "הנסיעה פורסמה!", Toast.LENGTH_SHORT).show();
             finish();
         });
     }

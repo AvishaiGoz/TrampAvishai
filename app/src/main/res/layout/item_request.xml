@@ -51,6 +51,26 @@
                 android:layout_weight="1"
                 android:backgroundTint="#F44336"
                 android:text="דחה" />
+
+            <Button
+                android:id="@+id/btnContactUser"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:text="צור קשר"
+                android:visibility="gone"
+                app:icon="@android:drawable/stat_sys_phone_call" />
+
         </LinearLayout>
+
+        <TextView
+            android:id="@+id/tvStatusLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="מאושר"
+            android:textStyle="bold"
+            android:visibility="gone" />
+
     </LinearLayout>
 </androidx.cardview.widget.CardView>
